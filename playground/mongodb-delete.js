@@ -38,9 +38,9 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, db) => {
  // worked
  
  // delete another by id, by findoneand delete. object id '123' did not work, though we have one in there.
-db.collection('Users').findOneAndDelete({_id: new ObjectID('58aa28b31418761490555ad5') }).then( (result) => {
-	console.log(result);
-});
+	db.collection('Users').findOneAndDelete({_id: new ObjectID('58aa28b31418761490555ad5') }).then( (result) => {
+		console.log(result);
+	}); // worked
 
 	//db.close();	
 });
