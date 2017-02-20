@@ -33,7 +33,7 @@ describe('POST /Todos', () => {
 					return done(err);	// only to stop execution
 				}
 				
-				// get values to verify was added properly
+				// get all values to verify was added properly
 				Todo.find().then((todos) => {
 				  expect(todos.length).toBe(1);
 				  expect(todos[0].text).toBe(text);
@@ -45,24 +45,23 @@ describe('POST /Todos', () => {
 	
 	
 	// check new item does not get made. our challenge
-	// beforeEach 
+	// beforeEach will run again before this check is run
 	it('should not create todo with invalid body data', (done) => {
 		request(app)
 		  .post('/todos')
 		  .send({})
 		  .expect(400)
-		  // assertions about the body
+		  // no assertions about the body, since we're erroring
+		  
 		  .end( (err, res) => {
 				if ( err ) return done(err);
 			  
 			  Todo.find().then((todos) => {
-					expect(todos.length).toBe(0);
+					expect(todos.length).toBe(0);  //expect length of db is 0
 					done();
 				}).catch((e) => done(e) );
 			
 			});//.end
-		
-		//expect length of db is 0
 		
 	});
 	
