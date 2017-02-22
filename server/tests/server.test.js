@@ -1,14 +1,18 @@
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 
 const {Todo} = require('./../models/todo');
 
 // we want some predicatable data in our database. Make some shit data
+// adding ids to test for them later
 const todos = [{
+	  _id: new ObjectID(),
 	  text: 'First test todo'
 	}, {
+		_id: new ObjectID(),
 	  text: 'Second test todo'	
 	}];
 
@@ -88,4 +92,37 @@ describe('GET /todos', () => {
 			})
 			.end(done);
 	});
+});
+
+describe('GET /todos/:id', () => {
+	it('should return todo doc', (done) => {
+		request(app)
+		  .get(`/todos/${todos[0]._id.toHexString()}`)
+		  .expect(200)
+		  .expect( (res) => { 
+				 expect(res.body.todoResult.text).toBe(todos[0].text); // i called it todoResult!
+			})
+			.end(done);
+	});
+	
+	it('should return a 404 if todo nout found', (done) => {
+		// make a request with a real object id
+		var newid = new ObjectID();
+		// make a new object id, won't be in collection
+		// make sure you get a 404 back
+		request(app)
+		 .get(`/todos/${newid.toHexString()}`)
+		 .expect(404)
+		 .end(done);
+	});
+	
+	
+	it('should return 404 for non-object ids', (done) => {
+		// pass in something like /todos/123
+		request(app)
+		 .get(`/todos/123`)
+		 .expect(404)
+		 .end(done);		
+	});
+	
 });
