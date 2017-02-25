@@ -1,3 +1,5 @@
+require('./config/config.js');
+
 const _=require('lodash');
 const {ObjectID} = require('mongodb');
 const express = require('express');
@@ -10,7 +12,7 @@ var {User} = require('./models/user');
 
 var app = express();
 // stuff for herokyu
-const port = process.env.PORT || 3000;
+const port = process.env.PORT; // || 3000; now set above
 
 // use middleware
 app.use(bodyParser.json());  // lets use send json to express app
