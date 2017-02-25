@@ -13,7 +13,9 @@ const todos = [{
 	  text: 'First test todo'
 	}, {
 		_id: new ObjectID(),
-	  text: 'Second test todo'	
+	  text: 'Second test todo',
+	  completed: true,
+	  completedAt: 333
 	}];
 
 // testing lifecycle method
@@ -169,7 +171,50 @@ describe('DELETE /todos/:id', () => {
 		 .expect(404)
 		 .end(done);	
 		
-	});
+	});	
+});
+
+describe('PATCH /todos/:id', () => {
+	it('should update the todo', (done) => {
+		// grab id of first item
+		var hexId = todos[0]._id.toHexString();
+		var newText = 'Some updated text';
+		// make patch request with id in it
+		request(app)
+		 .patch(`/todos/${hexId}`)
+		 .send({text:newText, completed:true})   // update text, set completed to true
+		 .expect(200)   // 1 assestion. get 200 back.
+		 .expect( (res) => {
+//			 console.log(res.body);
+			 expect( res.body.todo.text ).toBe( newText );  // custom assertion. response body has text equal to what i sent,
+			 expect( res.body.todo.completed).toBe(true);    // completed is true
+			 expect( res.body.todo.completedAt).toBeA('number');  // completedAt is a number
+		 })
+		 .end(done);
+		 
+	})
 	
+	it('should clear completedAt when todo is not completed', (done) => {
+		//grab ID of second todo item
+		var hexId = todos[1]._id.toHexString();
+		var newText = 'Some more updated text';
+		
+		request(app)
+		 .patch(`/todos/${hexId}`)
+		 .send({text:newText, completed:false})   // update text, set completed to false
+		 .expect(200)   // assertions: 200
+		 .expect( (res) => {
+		   expect( res.body.todo.text).toBe( newText );
+		   expect( res.body.todo.completed).toBe( false );
+		   expect( res.body.todo.completedAt).toNotExist()
+		 })	
+		 .end(done);
+		
+		
+		// assertions: 200, res body has changed text
+		//  and completed is false, and completedAt is null (.toNotExist)
+		
+		
+	});
 	
 });
