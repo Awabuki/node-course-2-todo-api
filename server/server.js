@@ -1,7 +1,7 @@
+const _=require('lodash');
 const {ObjectID} = require('mongodb');
-
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 var {mongoose} = require('./db/mongoose');
 
@@ -96,6 +96,40 @@ app.delete('/todos/:id', (req, res) => {
 		return res.status(400).send();		
 	});
 	
+	
+});
+
+// patch route (update todo items)
+app.patch('/todos/:id', (req, res) => {
+	var id = req.params.id;
+	// updates stored in body. capture using lodash functions
+	// We pick the specific ones we want (text, completed), so we dont save invalid properties
+	// basically "body" will become the mongo document we save, as it has all the same properties (except id)
+	var body = _.pick(req.body, ['text', 'completed']);
+	
+	// validate the id
+	if ( !ObjectID.isValid(id) )
+		return res.status(404).send();
+		
+	if ( _.isBoolean(body.completed) && body.completed ) {
+		// We add to the object 
+		body.completedAt = new Date().getTime();
+	}
+	else {
+		body.completed = false;
+		body.completedAt = null;
+	}
+
+	// find id, set entire doc to body, retur
+  Todo.findByIdAndUpdate(id, {$set: body}, {new:true}).then((todo) => {
+		if (!todo)
+		  return res.status(404).send();
+		
+		res.send({todo});
+		
+	}).catch( (e) => {
+		res.status(400).send();
+	})	
 	
 });
 
