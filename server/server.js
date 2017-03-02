@@ -135,6 +135,32 @@ app.patch('/todos/:id', (req, res) => {
 	
 });
 
+// POST /users
+app.post('/users', (req, res) => {
+// create new user. if goes well, send back happy. if bad, send back error. See above model for todo
+// use pick instead of pulling off properties (like patch methond). gives you body variable (email, password),
+//  pass that into constructor. Call save, respond.
+// To accomdate data type change, shut down db, wipe tables, restart.
+
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body);  
+  
+  // two kinds of security. model method (called on class object, "User"), and instance method (called on instance of class, "user")
+  
+  user.save().then( () => {
+		return user.generateAuthToken();  // chaining promise
+	  //res.send(doc);		// send doc back to user	
+	}).then((token) => {  // deal with returned value
+		res.header('x-auth',token).send(user);
+	}).catch((e) => {
+		res.status(400).send(e);		// send error back
+	});
+  	
+	
+});
+
+
+
 app.listen(port, () => {
 	console.log(`Started on port ${port}`);
 });
